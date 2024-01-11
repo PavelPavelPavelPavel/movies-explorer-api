@@ -50,10 +50,10 @@ function deleteMovie(req, res, next) {
       }
       if (movie.owner.toString() === userId.toString()) {
         return movie
-          .deleteOne({ movieId })
+          .deleteOne({ id: movieId })
           // eslint-disable-next-line consistent-return
-          .then((movie) => {
-            res.send({ message: `Deleted: ${movie.movieId}` });
+          .then(() => {
+            res.send(movieId);
           });
       }
       return next(new ForbidenError('Нет доступа'));

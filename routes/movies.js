@@ -6,11 +6,11 @@ const {
   // like,
   // dislike,
 } = require('../controllers/movies');
-const { validateCreateMovie } = require('../utils/validation/movieValidation');
+const { validateCreateMovie, validateIdMovie } = require('../utils/validation/movieValidation');
 
 moviesRouter.get('/', getAllMovies);
 moviesRouter.post('/', validateCreateMovie, createMovie);
-moviesRouter.delete('/:movieId', deleteMovie);
+moviesRouter.delete('/:movieId', validateIdMovie, deleteMovie);
 // moviesRouter.put('/:_id/likes', validateIdMovie, like);
 // moviesRouter.delete('/:_id/likes', validateIdMovie, dislike);
 
