@@ -45,12 +45,13 @@ function deleteMovie(req, res, next) {
   const { movieId } = req.params;
   return movieModel.findById(movieId)
     .then((movie) => {
+      console.log(movie);
       if (!movie) {
         return next(new NotFoundError('Фильм не найден'));
       }
       if (movie.owner.toString() === userId.toString()) {
         return movie
-          .deleteOne({ id: movieId })
+          .deleteOne({ movieId })
           // eslint-disable-next-line consistent-return
           .then(() => {
             res.send(movieId);
