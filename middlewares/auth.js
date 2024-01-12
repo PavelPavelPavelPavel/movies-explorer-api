@@ -1,9 +1,8 @@
 const jwt = require('jsonwebtoken');
 
-const envCheck = require('../utils/envCheck');
 const { AuthError } = require('../errors');
 
-const KEY_FOR_TOKEN = envCheck('production', process.env.KEY_FOR_TOKEN);
+const KEY_FOR_TOKEN = process.env.KEY_FOR_TOKEN || 'production';
 function authUser(req, res, next) {
   const { authorization } = req.headers;
   if (!authorization) {
