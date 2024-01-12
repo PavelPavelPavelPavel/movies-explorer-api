@@ -9,11 +9,10 @@ const helmet = require('helmet');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const appRouter = require('./routes');
 const errorHandler = require('./middlewares/error-handler');
-const mongoUrl = require('./utils/mongoUrl');
 
 const serverPort = NODE_ENV === 'production' ? PORT : 3000;
 console.log(serverPort);
-mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : mongoUrl)
+mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : 'mongodb://localhost:27017/bitfilmsdb')
   .then(() => {
     console.log('DB connected');
   });
