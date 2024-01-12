@@ -3,23 +3,22 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const cors = require('cors');
+
+const { NODE_ENV, PORT, MONGO_URL } = process.env;
 const helmet = require('helmet');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const appRouter = require('./routes');
 const errorHandler = require('./middlewares/error-handler');
 const mongoUrl = require('./utils/mongoUrl');
 
-const PORT = process.env.PORT || 3000;
-const MONGO_URL = process.env.MONGO_URL || mongoUrl;
-console.log(process.env.PORT);
-// const PORT = 3000;
-// const { MONGO_URL } = process.env;
-mongoose.connect(MONGO_URL).then(() => {
-  console.log('DB connected');
-});
+const serverPort = NODE_ENV === 'production' ? PORT : 3000;
+console.log(serverPort);
+mongoose.connect(NODE_ENV === 'production' ? MONGO_URL : mongoUrl)
+  .then(() => {
+    console.log('DB connected');
+  });
 const app = express();
 app.use(helmet());
-const { checkServer } = require('./utils/responseCheck');
 
 const allowedCors = [
   'https://praktikum.tk',
@@ -35,6 +34,4 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  checkServer(PORT);
-});
+app.listen(NODE_ENV === 'production' ? PORT : 3000, () => console.log(`server Started at ${PORT || 3000}`));

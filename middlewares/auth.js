@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 
+const { NODE_ENV, KEY_FOR_TOKEN } = process.env;
 const { AuthError } = require('../errors');
 
-const KEY_FOR_TOKEN = process.env.KEY_FOR_TOKEN || 'production';
 function authUser(req, res, next) {
   const { authorization } = req.headers;
   if (!authorization) {
@@ -11,7 +11,7 @@ function authUser(req, res, next) {
   const token = authorization.replace('Bearer ', '');
   let payload;
   try {
-    payload = jwt.verify(token, KEY_FOR_TOKEN);
+    payload = jwt.verify(token, NODE_ENV === 'production' ? KEY_FOR_TOKEN : 'develop');
   } catch (e) {
     return next(new AuthError('Нет доступа'));
   }

@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
+const { KEY_FOR_TOKEN, NODE_ENV } = process.env;
 const {
   NotFoundError,
   DataError,
@@ -15,9 +17,8 @@ const {
 } = require('../utils/constants');
 const userModel = require('../models/user');
 
-const KEY_FOR_TOKEN = process.env.KEY_FOR_TOKEN || 'production';
 const SALT = 10;
-const createToken = (id) => jwt.sign({ _id: id }, KEY_FOR_TOKEN, {
+const createToken = (id) => jwt.sign({ _id: id }, NODE_ENV === 'production' ? KEY_FOR_TOKEN : 'develope', {
   expiresIn: 3600000 * 24 * 7,
 });
 
