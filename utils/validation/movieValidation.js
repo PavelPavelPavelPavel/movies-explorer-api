@@ -1,5 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
-const { urlRegexp } = require('../config');
+const { urlRegexp } = require('../regexp');
 
 const validateCreateMovie = celebrate({
   body: Joi.object().required().keys({
@@ -13,7 +13,8 @@ const validateCreateMovie = celebrate({
     thumbnail: Joi.string().pattern(urlRegexp),
     nameRU: Joi.string(),
     nameEN: Joi.string(),
-  }).unknown(true),
+    movieId: Joi.string().length(24).hex().required(),
+  }),
 });
 
 const validateIdMovie = celebrate({

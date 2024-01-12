@@ -1,41 +1,50 @@
-/* eslint-disable no-shadow */
-/* eslint-disable consistent-return */
 const movieModel = require('../models/movies');
 const {
   NotFoundError,
   ForbidenError,
+  DataError,
 } = require('../errors');
+const {
+  accessIsClosed,
+  movieNotFound,
+} = require('../utils/constants');
 
-function getAllMovies(req, res, next) {
+function getUserMovies(req, res, next) {
+  const owner = req.user._id;
   return movieModel
-    .find({}).sort({ _id: -1 }).limit(12)
+    .find({ owner }).sort({ _id: -1 }).limit(12)
     .then((movies) => res.send(movies))
     .catch((err) => next(err));
 }
 
 function createMovie(req, res, next) {
-  const movieData = req.body;
+  const {
+    country, director, duration, year, description,
+    image, trailerLink, nameEN, nameRU, thumbnail, movieId,
+  } = req.body;
   const userId = req.user._id;
-
   return movieModel
     .create({
-      country: movieData.country,
-      director: movieData.director,
-      duration: movieData.duration,
-      year: movieData.year,
-      description: movieData.description,
-      image: movieData.image,
-      trailerLink: movieData.trailerLink,
-      nameRU: movieData.nameRU,
-      nameEN: movieData.nameEN,
-      thumbnail: movieData.thumbnail,
+      country,
+      director,
+      duration,
+      year,
+      description,
+      image,
+      trailerLink,
+      nameRU,
+      nameEN,
+      thumbnail,
       owner: userId,
-      movieId: movieData.movieId,
+      movieId,
     })
     .then((movie) => {
       res.status(201).send(movie);
     })
     .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new DataError(err.message));
+      }
       next(err);
     });
 }
@@ -45,19 +54,17 @@ function deleteMovie(req, res, next) {
   const { movieId } = req.params;
   return movieModel.findById(movieId)
     .then((movie) => {
-      console.log(movie);
       if (!movie) {
-        return next(new NotFoundError('Фильм не найден'));
+        return next(new NotFoundError(movieNotFound));
       }
       if (movie.owner.toString() === userId.toString()) {
         return movie
           .deleteOne({ movieId })
-          // eslint-disable-next-line consistent-return
           .then(() => {
-            res.send(movieId);
+            res.send({ movieId });
           });
       }
-      return next(new ForbidenError('Нет доступа'));
+      return next(new ForbidenError(accessIsClosed));
     })
     .catch((err) => next(err));
 }
@@ -73,11 +80,11 @@ function deleteMovie(req, res, next) {
 //       if (movie) {
 //         return res.status(200).send(movie);
 //       }
-//       return next(new NotFoundError('Карточка не найдена'));
+//       return next(new NotFoundError(movieNotFound));
 //     })
 //     .catch((err) => {
 //       if (err.name === 'CastError') {
-//         return next(new NotFoundError('Карточка не найдена'));
+//         return next(new NotFoundError(movieNotFound));
 //       }
 //       return next(err);
 //     });
@@ -100,7 +107,7 @@ function deleteMovie(req, res, next) {
 // }
 
 module.exports = {
-  getAllMovies,
+  getUserMovies,
   createMovie,
   deleteMovie,
   // like,

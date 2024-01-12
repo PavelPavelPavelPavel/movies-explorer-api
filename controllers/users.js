@@ -1,14 +1,22 @@
-const { KEY_FOR_TOKEN } = process.env;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const envCheck = require('../utils/envCheck');
 const {
   NotFoundError,
   DataError,
   AlreadyExistsError,
   AuthError,
 } = require('../errors');
+const {
+  userAlreadyExists,
+  wrongEmailAndPass,
+  accessIsClosed,
+  userNotFound,
+  wrongInputData,
+} = require('../utils/constants');
 const userModel = require('../models/user');
 
+const KEY_FOR_TOKEN = envCheck('production', process.env.KEY_FOR_TOKEN);
 const SALT = 10;
 const createToken = (id) => jwt.sign({ _id: id }, KEY_FOR_TOKEN, {
   expiresIn: 3600000 * 24 * 7,
@@ -20,10 +28,8 @@ function createUser(req, res, next) {
     .then((hash) => userModel
       .create({ email, password: hash, ...userData })
       .then((user) => {
-        // eslint-disable-next-line no-shadow
         const {
-          // eslint-disable-next-line no-shadow
-          name, email,
+          name,
         } = user;
         return res
           .status(201)
@@ -33,10 +39,10 @@ function createUser(req, res, next) {
       }))
     .catch((err) => {
       if (err.name === 'MongoServerError' && err.code === 11000) {
-        return next(new AlreadyExistsError('Пользователь уже существует'));
+        return next(new AlreadyExistsError(userAlreadyExists));
       }
       if (err.name === 'ValidationError') {
-        return next(new DataError('Поля имейл или пароль заполнены неверно'));
+        return next(new DataError(wrongEmailAndPass));
       }
       return next(err);
     });
@@ -45,21 +51,19 @@ function createUser(req, res, next) {
 function login(req, res, next) {
   const { email, password } = req.body;
   return userModel.findOne({ email }).select('+password')
-    // eslint-disable-next-line consistent-return
     .then((user) => {
       if (user) {
-        // eslint-disable-next-line consistent-return
         return bcrypt.compare(password, user.password, (err, isMatch) => {
           if (err) {
             return next(err);
           }
           if (isMatch) {
-            return res.send({ token: createToken(user._id), email });
+            return res.send({ token: `Bearer ${createToken(user._id)}`, email });
           }
-          return next(new AuthError('Нет доступа'));
+          return next(new AuthError(accessIsClosed));
         });
       }
-      return next(new AuthError('Нет доступа'));
+      return next(new AuthError(accessIsClosed));
     })
     .catch(next);
 }
@@ -69,13 +73,13 @@ function getUserInfo(req, res, next) {
   return userModel.findById(userId)
     .then((user) => {
       const {
-        _id, name, email,
+        name, email,
       } = user;
       if (!user) {
-        return next(new NotFoundError('Пользователь не найден'));
+        return next(new NotFoundError(userNotFound));
       }
       return res.send({
-        _id, name, email,
+        name, email,
       });
     })
     .catch(next);
@@ -84,7 +88,6 @@ function getUserInfo(req, res, next) {
 function updateInfo(req, res, next) {
   const userId = req.user._id;
   const { body } = req;
-
   return userModel
     .findByIdAndUpdate(
       userId,
@@ -97,13 +100,16 @@ function updateInfo(req, res, next) {
     )
     .then((user) => {
       if (!user) {
-        return next(new NotFoundError('Пользователь не найден'));
+        return next(new NotFoundError(userNotFound));
       }
       return res.send(user);
     })
     .catch((err) => {
+      if (err.code === 11000) {
+        return next(new AlreadyExistsError(userAlreadyExists));
+      }
       if (err.name === 'ValidationError') {
-        return next(new DataError('Введены некорректные данные'));
+        return next(new DataError(wrongInputData));
       }
       return next(err);
     });

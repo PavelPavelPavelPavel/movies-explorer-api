@@ -1,6 +1,6 @@
 const moviesRouter = require('express').Router();
 const {
-  getAllMovies,
+  getUserMovies,
   createMovie,
   deleteMovie,
   // like,
@@ -8,7 +8,7 @@ const {
 } = require('../controllers/movies');
 const { validateCreateMovie, validateIdMovie } = require('../utils/validation/movieValidation');
 
-moviesRouter.get('/', getAllMovies);
+moviesRouter.get('/', getUserMovies);
 moviesRouter.post('/', validateCreateMovie, createMovie);
 moviesRouter.delete('/:movieId', validateIdMovie, deleteMovie);
 // moviesRouter.put('/:_id/likes', validateIdMovie, like);

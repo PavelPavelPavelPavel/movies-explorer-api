@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { urlRegexp, languageEnRegexp, languageRuRegexp } = require('../utils/config');
+const { urlRegexp, languageEnRegexp, languageRuRegexp } = require('../utils/regexp');
 
 const movieSchema = new mongoose.Schema(
   {
