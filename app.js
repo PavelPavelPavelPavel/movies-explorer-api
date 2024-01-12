@@ -8,10 +8,10 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const appRouter = require('./routes');
 const errorHandler = require('./middlewares/error-handler');
 const envCheck = require('./utils/envCheck');
-const mongoUrl = require('./utils/mongoUrl');
 
 const PORT = envCheck(3000, process.env.PORT);
-const MONGO_URL = envCheck(mongoUrl, process.env.MONGO_URL);
+const MONGO_URL = envCheck(require('./utils/mongoUrl'), process.env.MONGO_URL);
+
 mongoose.connect(MONGO_URL).then(() => {
   console.log('DB connected');
 });
