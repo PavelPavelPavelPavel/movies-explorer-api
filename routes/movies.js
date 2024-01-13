@@ -10,7 +10,7 @@ const { validateCreateMovie, validateIdMovie } = require('../utils/validation/mo
 
 moviesRouter.get('/', getUserMovies);
 moviesRouter.post('/', validateCreateMovie, createMovie);
-moviesRouter.delete('/:movieId', validateIdMovie, deleteMovie);
+moviesRouter.delete('/:id', validateIdMovie, deleteMovie);
 // moviesRouter.put('/:_id/likes', validateIdMovie, like);
 // moviesRouter.delete('/:_id/likes', validateIdMovie, dislike);
 

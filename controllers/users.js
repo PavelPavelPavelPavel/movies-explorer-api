@@ -18,7 +18,7 @@ const {
 const userModel = require('../models/user');
 
 const SALT = 10;
-const createToken = (id) => jwt.sign({ _id: id }, NODE_ENV === 'production' ? KEY_FOR_TOKEN : 'develope', {
+const createToken = (id) => jwt.sign({ _id: id }, NODE_ENV === 'production' ? KEY_FOR_TOKEN : 'develop', {
   expiresIn: 3600000 * 24 * 7,
 });
 
@@ -58,7 +58,7 @@ function login(req, res, next) {
             return next(err);
           }
           if (isMatch) {
-            return res.send({ token: `Bearer ${createToken(user._id)}`, email });
+            return res.send({ token: createToken(user._id), email });
           }
           return next(new AuthError(accessIsClosed));
         });

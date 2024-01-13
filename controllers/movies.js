@@ -12,7 +12,7 @@ const {
 function getUserMovies(req, res, next) {
   const owner = req.user._id;
   return movieModel
-    .find({ owner }).sort({ _id: -1 }).limit(12)
+    .find({ owner }).sort({ _id: -1 })
     .then((movies) => res.send(movies))
     .catch((err) => next(err));
 }
@@ -51,17 +51,17 @@ function createMovie(req, res, next) {
 
 function deleteMovie(req, res, next) {
   const userId = req.user._id;
-  const { movieId } = req.params;
-  return movieModel.findById(movieId)
+  const { id } = req.params;
+  return movieModel.findById(id)
     .then((movie) => {
       if (!movie) {
         return next(new NotFoundError(movieNotFound));
       }
       if (movie.owner.toString() === userId.toString()) {
         return movie
-          .deleteOne({ movieId })
+          .deleteOne({ id })
           .then(() => {
-            res.send({ movieId });
+            res.send({ id });
           });
       }
       return next(new ForbidenError(accessIsClosed));
