@@ -13,6 +13,7 @@ const validateCreateMovie = celebrate({
     thumbnail: Joi.string().pattern(urlRegexp),
     nameRU: Joi.string(),
     nameEN: Joi.string(),
+    isLiked: Joi.boolean(),
     movieId: Joi.number().required(),
   }),
 });
