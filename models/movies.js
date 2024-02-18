@@ -62,11 +62,9 @@ const movieSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    // likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
-    // createdAt: {
-    //   type: Date,
-    //   default: Date.now,
-    // },
+    isLiked: {
+      type: Boolean,
+    },
     nameRU: {
       type: String,
       validate: {
